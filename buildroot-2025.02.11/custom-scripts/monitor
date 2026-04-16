@@ -1,0 +1,49 @@
+#!/bin/sh
+
+case "$1" in
+  start)
+    echo "Starting web server (httpd) for monitor..."
+    
+    # Create web root and cgi-bin directories
+    mkdir -p /var/www/cgi-bin
+    
+    # Copy monitor to cgi-bin and make it executable
+    cp /usr/bin/monitor /var/www/cgi-bin/monitor
+    chmod +x /var/www/cgi-bin/monitor
+    
+    # Create a simple index that redirects to monitor CGI
+    cat > /var/www/index.html << 'EOF'
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Monitor</title>
+  <meta http-equiv="refresh" content="0;url=/cgi-bin/monitor">
+</head>
+<body>
+<p>Access the monitor at: <a href="/cgi-bin/monitor">/cgi-bin/monitor</a></p>
+</body>
+</html>
+EOF
+    
+    # Start busybox httpd on port 80 with CGI support
+    busybox httpd -p 80 -h /var/www
+    
+    echo "OK"
+    ;;
+  stop)
+    echo "Stopping web server..."
+    pkill -f "busybox httpd" || true
+    echo "OK"
+    ;;
+  restart)
+    $0 stop
+    sleep 1
+    $0 start
+    ;;
+  *)
+    echo "Usage: $0 {start|stop|restart}"
+    exit 1
+    ;;
+esac
+
+exit 0

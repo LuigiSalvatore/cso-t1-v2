@@ -1,0 +1,23 @@
+#!/bin/sh
+set -x
+if [ -n "$1" ]; then
+    ip tuntap add $1 mode tap user `whoami`
+    ip link set $1 up
+    sleep 0.5s
+    
+    # Bridge the TAP interface with the physical interface
+    ip link add br0 type bridge 2>/dev/null
+    ip link set enp3s0 master br0 2>/dev/null
+    ip link set $1 master br0
+    ip link set br0 up
+    
+    # Move the IP from enp3s0 to the bridge
+    ip addr del 192.168.15.5/24 dev enp3s0 2>/dev/null
+    ip addr add 192.168.15.5/24 dev br0
+    
+    sysctl -w net.ipv4.ip_forward=1
+    exit 0
+else
+    echo "Error: no interface specified."
+    exit 1
+fi
