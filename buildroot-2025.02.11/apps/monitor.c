@@ -101,8 +101,11 @@ void print_cpu() {
         rewind(fp);
 
         while (fgets(line, sizeof(line), fp)) {
-            if (strncmp(line, "velocidade:", 7) == 0) {
-                printf("%s MHz<br>", line);
+            if (strncmp(line, "cpu MHz", 7) == 0) {
+                char *p = strchr(line, ':');
+                if (p) {
+                    printf("Velocidade: %d MHz<br>", (int) atof(p + 2));
+                }
                 break;
             }
         }
