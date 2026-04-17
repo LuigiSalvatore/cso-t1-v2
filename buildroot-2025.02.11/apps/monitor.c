@@ -98,8 +98,19 @@ void print_cpu() {
                 break;
             }
         }
-
         rewind(fp);
+
+        while (fgets(line, sizeof(line), fp)) {
+            if (strncmp(line, "cpu MHz", 7) == 0) {
+                char *p = strchr(line, ':');
+                if (p) {
+                    printf("Velocidade: %d MHz<br>", (int) atof(p + 2));
+                }
+                break;
+            }
+        }
+        rewind(fp);
+
         while (fgets(line, sizeof(line), fp)) {
             if (strncmp(line, "processor", 9) == 0) cores++;
         }
@@ -141,11 +152,20 @@ void print_cpu_usage() {
 void print_io() {
     FILE *fp = fopen("/proc/diskstats", "r");
     char line[256];
-
-    if (fp && fgets(line, sizeof(line), fp)) {
-        printf("<p><b>Diskstats:</b> %s</p>", line);
-        fclose(fp);
+    printf("<p><b>I/O (leituras/escritas):</b><br>");
+    while (fp && fgets(line, sizeof(line), fp)) {
+        char dev[32];
+        unsigned long rd_ios, rd_sec, wr_ios, wr_sec;
+        sscanf(line, "%*d %*d %s %lu %*d %lu %*d %lu %*d %lu",
+               dev, &rd_ios, &rd_sec, &wr_ios, &wr_sec);
+        if (strcmp(dev, "sda") == 0) {
+            printf("Leituras: %lu operações, %lu setores<br>", rd_ios, rd_sec);
+            printf("Escritas: %lu operações, %lu setores", wr_ios, wr_sec);
+            break;
+        }
     }
+    if (fp) fclose(fp);
+    printf("</p>");
 }
 //sistema de arquivos
 void print_filesystems() {

@@ -26,7 +26,7 @@ case "$1" in
 EOF
     
     # Start busybox httpd on port 80 with CGI support
-    busybox httpd -p 80 -h /var/www
+    busybox httpd -p 80 -u httpd -h /var/www
     
     echo "OK"
     ;;

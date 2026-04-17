@@ -1,0 +1,2 @@
+# <username>  <uid>  <group>  <gid>  <password>  <home>      <shell>     <groups>  <comment>
+httpd         -2     httpd    -2     =root       /var/www    /bin/false  -         Web user
